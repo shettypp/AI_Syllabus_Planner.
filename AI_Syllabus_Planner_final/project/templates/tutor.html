@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}AI Study Assistant{% endblock %}
+{% block content %}
+<header>
+    <h1>AI Study Assistant</h1>
+    <p>Use the tools below to summarize text, simplify concepts, or ask specific questions.</p>
+</header>
+<main>
+    <div class="card" id="ai-assistant-container">
+        <h2>Summarizer & Simplifier</h2>
+        <div class="form-group">
+            <label for="ai-input-text">Your Text / Article / Passage</label>
+            <textarea id="ai-input-text" rows="10" placeholder="Paste your study material here..." required></textarea>
+        </div>
+        <div class="ai-actions">
+            <button id="summarize-btn" class="btn-primary">Summarize</button>
+            <button id="simplify-btn" class="btn-secondary">Simplify </button>
+        </div>
+        <div id="ai-output-container" class="hidden">
+            <h2>Result:</h2>
+            <div id="ai-output-text"></div>
+        </div>
+    </div>
+
+    <div class="card" id="qna-container">
+        <h2>Manual Question & Answer</h2>
+        <form id="qna-form">
+            <div class="form-group">
+                <label for="qna-context">Context from Book</label>
+                <textarea id="qna-context" rows="8" placeholder="Paste the paragraph from your book here." required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="qna-question">Your Specific Question</label>
+                <input type="text" id="qna-question" placeholder="Ask a question about the context above." required>
+            </div>
+            <button type="submit" class="btn-primary">Get Answer</button>
+        </form>
+        <div id="qna-output-container" class="hidden">
+            <h2>Answer:</h2>
+            <div id="qna-output-text"></div>
+        </div>
+    </div>
+</main>
+<div id="loader" class="hidden"><div class="spinner"></div><p>Thinking...</p></div>
+{% endblock %}

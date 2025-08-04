@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+<div class="card" style="text-align: center; margin-top: 50px;">
+    <h1>Welcome to the AI Study Planner & Tutor</h1>
+    <p>The ultimate tool to organize your studies and get instant answers.</p>
+    <p>Please log in or sign up to create your personalized study plan.</p>
+    <div style="margin-top: 20px;">
+        <a href="{{ url_for('auth.login') }}" class="btn-primary" style="text-decoration: none; margin-right: 10px; display: inline-block; width: auto;">Login</a>
+        <a href="{{ url_for('auth.signup') }}" class="btn-secondary" style="text-decoration: none; display: inline-block; width: auto;">Sign Up</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<header>
+    <h1>Welcome back, {{ name }}!</h1>
+    <p>Here's a summary of your study progress.</p>
+</header>
+
+<main id="dashboard-grid">
+    <div class="card" id="achievement-chart-container">
+        <h2>Last 7 Days Achievement</h2>
+        <canvas id="achievementChart"></canvas>
+    </div>
+
+    <div id="dashboard-sidebar">
+        <div class="card" id="today-tasks">
+            <h2>Today's Tasks</h2>
+            {% if todays_tasks %}
+                <ul class="task-list">
+                    {% for task in todays_tasks %}
+                    <li class="agenda-task-item task-type-{{ task.task_type }}">
+                        <div class="agenda-task-time">{{ task.start_time.strftime('%I:%M %p') }}</div>
+                        <div class="agenda-task-content">
+                             <input type="checkbox" id="dashboard-task-{{ task.id }}" data-task-id="{{ task.id }}" {% if task.is_complete %}checked{% endif %}>
+                             <label for="dashboard-task-{{ task.id }}"><strong>{{ task.subject }}:</strong> {{ task.topic }}</label>
+                             <div class="task-actions">
+                                 <button class="btn-notes" data-task-id="{{ task.id }}" data-notes="{{ task.notes or '' }}">Notes</button>
+                             </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No study tasks scheduled for today!</p>
+            {% endif %}
+        </div>
+        
+        <div class="card" id="actions-section">
+             <a href="{{ url_for('main.planner') }}" class="btn-primary" style="text-decoration: none; display: block; width: 100%;">Go to Full Planner</a>
+            {% if overdue_tasks_exist %}
+                <button id="reschedule-btn" class="btn-danger" style="width: 100%; margin-top: 15px;">Reschedule Overdue Tasks</button>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+<div id="notes-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h2>Edit Notes</h2>
+        <textarea id="notes-textarea" rows="15" placeholder="Write your notes here..."></textarea>
+        <div class="modal-actions">
+            <button id="cancel-notes-btn" class="btn-secondary">Cancel</button>
+            <button id="save-notes-btn" class="btn-primary">Save Notes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ctx = document.getElementById('achievementChart');
+        if (ctx) {
+            const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            const labelColor = isDarkMode ? '#e0e0e0' : '#333';
+            const chartData = {{ chart_data | safe }};
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {{ chart_labels | safe }},
+                    datasets: [{
+                        label: 'Tasks Completed',
+                        data: chartData,
+                        backgroundColor: 'rgba(80, 227, 194, 0.6)',
+                        borderColor: 'rgba(80, 227, 194, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: labelColor, stepSize: 1 },
+                            grid: { color: gridColor }
+                        },
+                        x: {
+                            ticks: { color: labelColor },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        // --- FIX: Custom tooltip logic ---
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.parsed.y;
+                                    let label = `Tasks Completed: ${value}`;
+                                    if (value >= 5) {
+                                        label += ' (Excellent!)';
+                                    } else if (value >= 3) {
+                                        label += ' (Productive Day!)';
+                                    } else if (value > 0) {
+                                        label += ' (Good Start!)';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

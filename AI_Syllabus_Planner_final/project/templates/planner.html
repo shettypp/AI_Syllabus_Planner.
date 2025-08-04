@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}My Planner{% endblock %}
+{% block content %}
+<header>
+    <h1>Hello, {{ name }}! Let's plan your studies.</h1>
+    <p>Use the Pomodoro timer for focused sessions, and add your subjects below.</p>
+</header>
+
+<main>
+    <section class="card" id="pomodoro-timer">
+        <h2>Pomodoro Timer</h2>
+        <div class="pomodoro-modes">
+            <button class="mode-btn active" data-mode="pomodoro">Pomodoro</button>
+            <button class="mode-btn" data-mode="shortBreak">Short Break</button>
+            <button class="mode-btn" data-mode="longBreak">Long Break</button>
+        </div>
+        <div class="timer-display-container">
+            <time id="timer-display">25:00</time>
+        </div>
+        <div class="timer-controls">
+            <button id="start-pause-btn" class="btn-primary" style="width: 200px;">Start</button>
+            <button id="reset-btn" class="btn-secondary" style="width: 100px;">Reset</button>
+        </div>
+    </section>
+
+    <section class="card" id="input-section">
+        <h2>1. Create a New Plan</h2>
+        <form id="study-form">
+            <div id="subject-entries"></div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" id="add-subject-btn">+ Add Subject</button>
+                <button type="submit" class="btn-primary" style="width: auto;">Generate New Plan</button>
+            </div>
+            <div class="form-group checkbox-group" style="margin-top: 20px; justify-content: center;">
+                <input type="checkbox" id="has-classes-checkbox">
+                <label for="has-classes-checkbox">I have classes from 9 AM to 5 PM on weekdays.</label>
+            </div>
+        </form>
+    </section>
+
+    <section class="card" id="plan-section">
+        <h2>2. Your Current Study Plan</h2>
+        <div id="plan-agenda-view">
+            {% if plan %}
+                {% for date, tasks in plan.items() %}
+                    <div class="agenda-day">
+                        <h3>{{ tasks[0].due_date.strftime('%A, %d %B, %Y') }}</h3>
+                        <ul class="agenda-task-list">
+                            {% for task in tasks %}
+                            <li class="agenda-task-item task-type-{{ task.task_type }}">
+                                <div class="agenda-task-time">{{ task.start_time.strftime('%I:%M %p') }} - {{ task.end_time.strftime('%I:%M %p') }}</div>
+                                <div class="agenda-task-content">
+                                    {% if task.task_type == 'study' %}
+                                        <input type="checkbox" id="task-{{ task.id }}" data-task-id="{{ task.id }}" {% if task.is_complete %}checked{% endif %}>
+                                        <label for="task-{{ task.id }}"><strong>{{ task.subject }}:</strong> {{ task.topic }}</label>
+                                        <div class="task-actions">
+                                            <button class="btn-notes" data-task-id="{{ task.id }}" data-notes="{{ task.notes or '' }}">Notes</button>
+                                        </div>
+                                    {% else %}
+                                        <span><strong>{{ task.subject }}:</strong> {{ task.topic }}</span>
+                                    {% endif %}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="placeholder">You don't have a plan yet. Create one above!</div>
+            {% endif %}
+        </div>
+    </section>
+</main>
+
+<div id="loader" class="hidden"><div class="spinner"></div><p>Processing...</p></div>
+
+<div id="notes-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h2>Edit Notes</h2>
+        <textarea id="notes-textarea" rows="15" placeholder="Write your notes here..."></textarea>
+        <div class="modal-actions">
+            <button id="cancel-notes-btn" class="btn-secondary">Cancel</button>
+            <button id="save-notes-btn" class="btn-primary">Save Notes</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
